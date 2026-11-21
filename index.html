@@ -1,79 +1,95 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>3D Maps — Sawantwadi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<title>Sho1re1 3D — Sawantwadi</title>
+<link rel="preconnect" href="https://tiles.openfreemap.org">
 <link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--panel:rgba(15,20,25,.82);--line:rgba(255,255,255,.12);--muted:#9ba8b5}
-*{box-sizing:border-box}html,body,#map{width:100%;height:100%;margin:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:#101820;color:#f5f7fa;overflow:hidden}
-#map{position:absolute;inset:0}.top{position:absolute;z-index:2;top:16px;left:16px;right:16px;display:flex;align-items:center;gap:12px;pointer-events:none}.brand,.search,.controls,.credit{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 8px 30px #0003}.brand{padding:11px 15px;border-radius:16px;font-weight:750;letter-spacing:-.4px;white-space:nowrap}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:500;letter-spacing:1.4px;margin-top:2px}.search{pointer-events:auto;flex:1;max-width:430px;display:flex;align-items:center;padding:0 14px;border-radius:15px;height:46px}.search input{width:100%;background:none;border:0;outline:0;color:white;font:inherit;font-size:14px}.search input::placeholder{color:#9ba8b5}.controls{position:absolute;z-index:2;right:16px;top:82px;display:grid;gap:8px;padding:8px;border-radius:16px}.controls button,.locate{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:#202a33;color:white;font-size:18px;cursor:pointer}.controls button:active,.locate:active{transform:scale(.95)}.controls button.active{background:#d7e9e7;color:#102326}.locate{position:absolute;z-index:2;right:16px;bottom:30px;width:auto;padding:0 14px;font-size:13px;background:var(--panel);backdrop-filter:blur(18px)}.hint{position:absolute;z-index:2;left:16px;bottom:28px;max-width:min(330px,calc(100% - 90px));padding:12px 14px;border:1px solid var(--line);border-radius:15px;background:var(--panel);backdrop-filter:blur(18px);font-size:12px;color:#dce4e9;line-height:1.5}.hint b{color:#fff}.credit{position:absolute;z-index:2;right:16px;bottom:82px;padding:7px 10px;border-radius:10px;font-size:10px;color:var(--muted)}.maplibregl-ctrl-group{background:#18232c!important;border:1px solid var(--line)!important}.maplibregl-ctrl-group button{filter:invert(1)}.maplibregl-ctrl-attrib{background:#101820bb!important;color:#c8d0d7!important}.maplibregl-ctrl-attrib a{color:#c8d0d7!important}
-@media(max-width:600px){.top{top:12px;left:12px;right:12px;gap:8px}.brand{padding:10px 12px;font-size:14px}.brand small{font-size:9px}.search{height:42px}.controls{right:12px;top:68px}.locate{right:12px;bottom:22px}.hint{left:12px;bottom:22px;font-size:11px}.credit{right:12px;bottom:72px}}
+:root{color-scheme:dark;--glass:rgba(12,19,27,.82);--line:rgba(255,255,255,.12);--muted:#9caab8;--ink:#f4f7fa;--accent:#c7f36b}
+*{box-sizing:border-box}html,body,#map{width:100%;height:100%;margin:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:#0b1118;color:var(--ink);overflow:hidden}button,input{font:inherit}button{color:inherit;cursor:pointer}#map{position:absolute;inset:0}
+.glass{background:var(--glass);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);border:1px solid var(--line);box-shadow:0 12px 40px #0004}
+.header{position:absolute;z-index:5;top:max(12px,env(safe-area-inset-top));left:14px;right:14px;display:flex;gap:10px;align-items:center;pointer-events:none}.brand{pointer-events:auto;padding:10px 14px;border-radius:17px;white-space:nowrap;font-weight:850;letter-spacing:-.6px}.brand span{display:block;color:var(--accent);font-size:9px;letter-spacing:1.6px;font-weight:700;margin-top:2px}.search{pointer-events:auto;display:flex;align-items:center;gap:9px;height:46px;max-width:460px;flex:1;padding:0 14px;border-radius:15px}.search input{width:100%;min-width:0;color:white;background:none;border:0;outline:0;font-size:13px}.search input::placeholder{color:#9caab8}.search button{background:none;border:0;color:#b6c3ce;font-size:17px}
+.toolbar{position:absolute;z-index:4;right:14px;top:78px;display:grid;gap:7px;padding:7px;border-radius:17px}.tool{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:#1b2732;color:#eaf0f3;font-size:13px;font-weight:750}.tool.active{background:var(--accent);color:#17200e;border-color:transparent}.tool:active,.action:active{transform:scale(.96)}
+.bottom{position:absolute;z-index:4;left:14px;bottom:max(14px,env(safe-area-inset-bottom));width:min(390px,calc(100% - 86px));border-radius:20px;padding:14px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:9px;letter-spacing:1.5px;color:var(--accent);font-weight:800}.panel-title{font-size:17px;font-weight:800;letter-spacing:-.5px;margin-top:3px}.status{display:flex;align-items:center;gap:6px;font-size:10px;color:#b6c3ce;white-space:nowrap}.dot{width:7px;height:7px;border-radius:50%;background:#f2b84b}.dot.ok{background:#8fe0a1}.stats{display:flex;gap:7px;margin-top:12px}.stat{background:#ffffff0a;border:1px solid #ffffff12;border-radius:12px;padding:8px 10px;flex:1;min-width:0}.stat b{display:block;font-size:16px}.stat span{display:block;font-size:9px;color:var(--muted);margin-top:2px}.places{margin-top:10px;max-height:min(28vh,220px);overflow:auto;display:grid;gap:6px;scrollbar-width:thin}.place{display:flex;gap:10px;align-items:center;text-align:left;padding:9px;border:1px solid #ffffff12;border-radius:13px;background:#ffffff08;width:100%}.place:active{background:#ffffff16}.place .pin{width:31px;height:31px;border-radius:10px;background:#c7f36b18;color:var(--accent);display:grid;place-items:center;flex:none;font-size:14px}.place strong{display:block;font-size:11px;line-height:1.3}.place small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.place .arrow{margin-left:auto;color:#9daab4}.empty{font-size:11px;color:var(--muted);padding:12px 4px;line-height:1.5}.action{position:absolute;z-index:4;right:14px;bottom:max(18px,env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--glass);backdrop-filter:blur(18px);font-size:11px;font-weight:700}.credit{position:absolute;z-index:3;right:14px;bottom:76px;padding:7px 9px;border-radius:10px;font-size:9px;color:#aab6c0}.maplibregl-ctrl-group{background:#18232c!important;border:1px solid var(--line)!important}.maplibregl-ctrl-group button{filter:invert(1)}.maplibregl-ctrl-attrib{background:#101820bb!important;color:#c8d0d7!important}.maplibregl-ctrl-attrib a{color:#c8d0d7!important}.maplibregl-popup-content{background:#111b24;color:#f4f7fa;border:1px solid #ffffff20;border-radius:13px;padding:12px 14px;box-shadow:0 12px 35px #0008}.maplibregl-popup-tip{border-top-color:#111b24!important}.popup-title{font-weight:800;font-size:13px}.popup-meta{font-size:10px;color:#aab6c0;margin-top:4px}.maplibregl-popup-close-button{color:white;font-size:17px}
+@media(max-width:600px){.header{left:10px;right:10px;gap:7px}.brand{padding:10px 11px;font-size:13px}.brand span{font-size:8px}.search{height:43px;padding:0 10px}.search input{font-size:12px}.toolbar{right:10px;top:68px;padding:6px;gap:6px}.tool{width:39px;height:39px}.bottom{left:10px;bottom:max(10px,env(safe-area-inset-bottom));width:min(360px,calc(100% - 74px));padding:12px}.panel-title{font-size:15px}.places{max-height:23vh}.action{right:10px;bottom:max(14px,env(safe-area-inset-bottom));padding:11px 10px;font-size:10px}.credit{right:10px;bottom:66px;font-size:8px}}
 </style>
 </head>
 <body>
 <div id="map"></div>
-<div class="top"><div class="brand">3D MAPS<small>SAWANTWADI · OPEN MAP</small></div><label class="search"><span style="margin-right:9px">⌕</span><input id="search" placeholder="Search a place or landmark" autocomplete="off"></label></div>
-<div class="controls">
-<button id="tilt" title="Toggle 3D view" class="active">3D</button>
-<button id="terrain" title="Toggle terrain">⌁</button>
-<button id="buildings" title="Toggle 3D buildings" class="active">▥</button>
-<button id="north" title="Reset north">N</button>
-</div>
-<button class="locate" id="home">◎ &nbsp; Sawantwadi</button>
-<div class="hint"><b>Explore in 3D</b><br>Drag to move · Scroll to zoom · Right-drag to tilt and rotate</div>
-<div class="credit">© OpenStreetMap · Overture / Milleleaf (ODbL) · OpenFreeMap</div>
+<header class="header">
+ <div class="brand glass">SHO1RE1<span>3D LOCAL WORLD</span></div>
+ <label class="search glass"><span>⌕</span><input id="search" placeholder="Search places, roads, landmarks…" autocomplete="off"><button id="clearSearch" aria-label="Clear search">×</button></label>
+</header>
+<nav class="toolbar glass" aria-label="Map controls">
+ <button class="tool active" id="tilt" title="Toggle 3D">3D</button>
+ <button class="tool" id="terrain" title="Toggle terrain">⛰</button>
+ <button class="tool active" id="buildings" title="Toggle 3D buildings">▥</button>
+ <button class="tool" id="north" title="Reset north">N</button>
+ <button class="tool" id="refresh" title="Refresh database places">↻</button>
+</nav>
+<section class="bottom glass">
+ <div class="panel-head"><div><div class="eyebrow">SAWANTWADI · MAHARASHTRA</div><div class="panel-title">Explore your world</div></div><div class="status"><i class="dot" id="dbDot"></i><span id="dbStatus">Connecting database</span></div></div>
+ <div class="stats"><div class="stat"><b id="placeCount">—</b><span>LIVE PLACES</span></div><div class="stat"><b id="categoryCount">—</b><span>CATEGORIES</span></div><div class="stat"><b id="viewMode">3D</b><span>MAP MODE</span></div></div>
+ <div class="places" id="places"><div class="empty">Loading places from Sho1re1 D1…</div></div>
+</section>
+<button class="action" id="home">◎ &nbsp; Sawantwadi</button>
+<div class="credit glass">© OpenStreetMap · OpenFreeMap · Overture / Milleleaf</div>
 <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
 <script>
 (() => {
- const center=[73.7497,15.9044];
- const pmtilesProtocol=new pmtiles.Protocol();
- maplibregl.addProtocol('pmtiles',pmtilesProtocol.tile);
- const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center,zoom:15.2,pitch:58,bearing:-18,antialias:true,attributionControl:true});
- map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-left');
- map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
- let buildingLayer=null,heightLayer=null,terrainOn=false,buildingsOn=true,threeD=true;
- map.on('load',()=>{
-   const style=map.getStyle();
-   const before=(style.layers||[]).find(l=>l.type==='symbol')?.id;
-   // Open, height-attributed building tiles for Asia (ODbL via Overture/OSM).
-   // PMTiles uses HTTP range requests, so the browser fetches only visible map tiles.
-   map.addSource('global-height-buildings',{type:'vector',url:'pmtiles://https://huggingface.co/buckets/alreadyopen/world-buildings/resolve/v/2026-09-23.1/r013.pmtiles',attribution:'Building heights: Overture Maps / Milleleaf · ODbL-1.0'});
-   heightLayer='sho1re1-global-height-buildings';
-   map.addLayer({id:heightLayer,type:'fill-extrusion',source:'global-height-buildings','source-layer':'buildings',minzoom:13,
-     filter:['>', ['to-number',['get','height'],0],0],
-     paint:{'fill-extrusion-color':['interpolate',['linear'],['to-number',['get','height'],0],0,'#d8e4e8',18,'#9db6bf',60,'#647f8d',150,'#405967'],
-       'fill-extrusion-height':['to-number',['get','height'],0],
-       'fill-extrusion-base':['to-number',['coalesce',['get','min_height'],0]],
-       'fill-extrusion-opacity':.94}},before);
-   const candidates=(style.layers||[]).filter(l=>l['source-layer']==='building');
-   if(candidates.length){
-     buildingLayer=candidates[0].id;
-     candidates.forEach(l=>{if(l.type==='fill-extrusion')map.setLayoutProperty(l.id,'visibility','visible')});
-   } else if(map.getSource('openmaptiles')){
-     buildingLayer='sho1re1-3d-buildings';
-     map.addLayer({id:buildingLayer,type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:13,
-       filter:['!=',['get','hide_3d'],'true'],
-       paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],5],0,'#c8d4d8',40,'#829da6',120,'#526b78'],
-       'fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],5],
-       'fill-extrusion-base':['coalesce',['get','render_min_height'],['get','min_height'],0],
-       'fill-extrusion-opacity':.88}},before);
-   }
-   map.addSource('terrain-dem',{type:'raster-dem',tiles:['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],tileSize:256,encoding:'terrarium',maxzoom:15});
-   map.addLayer({id:'terrain-shade',type:'hillshade',source:'terrain-dem',layout:{visibility:'none'},paint:{'hillshade-exaggeration':.28}});
-   map.setTerrain({source:'terrain-dem',exaggeration:1.15});
-   map.setFog({range:[1,10],color:'#d8e5eb','horizon-blend':.12});
-   document.getElementById('terrain').classList.remove('active');
+ "use strict";
+ const API="https://sho1re1-map-api.sho1re1.workers.dev";
+ const center=[73.7497,15.9044], $=id=>document.getElementById(id);
+ const protocol=new pmtiles.Protocol();maplibregl.addProtocol("pmtiles",protocol.tile);
+ const map=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/liberty",center,zoom:15.2,pitch:58,bearing:-18,antialias:true,attributionControl:true});
+ map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),"bottom-left");
+ map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:"metric"}),"bottom-left");
+ let heightLayer=null,baseBuildingLayers=[],terrainOn=false,buildingsOn=true,threeD=true,markers=[],posts=[];
+ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ function setDb(ok,message){$("dbDot").classList.toggle("ok",ok);$("dbStatus").textContent=message}
+ function popupHtml(p){return '<div class="popup-title">'+esc(p.title)+'</div><div class="popup-meta">'+esc(p.category)+' · '+esc(p.area||p.location_name)+'</div><div class="popup-meta">'+esc(p.description)+'</div>'}
+ function clearMarkers(){markers.forEach(m=>m.remove());markers=[]}
+ function renderPlaces(items){
+  posts=items;clearMarkers();$("placeCount").textContent=items.length;
+  $("places").innerHTML=items.length?items.map((p,i)=>'<button class="place" data-id="'+esc(p.id)+'"><span class="pin">'+(i+1)+'</span><span><strong>'+esc(p.title)+'</strong><small>'+esc(p.category)+' · '+esc(p.area||p.location_name)+(p.is_demo?' · DEMO':'')+'</small></span><span class="arrow">↗</span></button>').join(""):'<div class="empty">No published places yet. Add listings to the Sho1re1 database to see them here.</div>';
+  items.forEach((p,i)=>{if(!Number.isFinite(Number(p.longitude))||!Number.isFinite(Number(p.latitude)))return;
+   const el=document.createElement("div");el.style.cssText="width:28px;height:28px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:#c7f36b;border:2px solid #14200c;box-shadow:0 3px 15px #0008;display:grid;place-items:center";
+   const inner=document.createElement("span");inner.textContent=String(i+1);inner.style.cssText="transform:rotate(45deg);font-size:10px;font-weight:900;color:#18220e";el.appendChild(inner);
+   const marker=new maplibregl.Marker({element:el,anchor:"bottom"}).setLngLat([Number(p.longitude),Number(p.latitude)]).setPopup(new maplibregl.Popup({offset:18}).setHTML(popupHtml(p))).addTo(map);markers.push(marker);
+  });
+  $("places").querySelectorAll(".place").forEach(el=>el.addEventListener("click",()=>{const p=posts.find(x=>x.id===el.dataset.id);if(!p)return;map.flyTo({center:[Number(p.longitude),Number(p.latitude)],zoom:17.5,pitch:58,duration:900});const i=posts.indexOf(p);if(markers[i])markers[i].togglePopup()}));
+ }
+ async function loadData(){
+  setDb(false,"Syncing D1…");$("places").innerHTML='<div class="empty">Fetching live places…</div>';
+  try{
+   const [pr,cr]=await Promise.all([fetch(API+"/api/posts",{cache:"no-store"}),fetch(API+"/api/categories",{cache:"no-store"})]);
+   if(!pr.ok||!cr.ok)throw new Error("API returned "+pr.status+"/"+cr.status);
+   const pd=await pr.json(),cd=await cr.json();renderPlaces(pd.posts||[]);$("categoryCount").textContent=(cd.categories||[]).length;setDb(true,"D1 connected");
+  }catch(e){setDb(false,"Database offline");$("places").innerHTML='<div class="empty">Could not load database places. Check your connection and tap ↻ to retry.<br><small>'+esc(e.message)+'</small></div>'}
+ }
+ map.on("load",()=>{
+  const style=map.getStyle(),before=(style.layers||[]).find(l=>l.type==="symbol")?.id;
+  map.addSource("global-height-buildings",{type:"vector",url:"pmtiles://https://huggingface.co/buckets/alreadyopen/world-buildings/resolve/v/2026-09-23.1/r013.pmtiles",attribution:"Building heights: Overture Maps / Milleleaf · ODbL-1.0"});
+  heightLayer="sho1re1-global-height-buildings";
+  map.addLayer({id:heightLayer,type:"fill-extrusion",source:"global-height-buildings",source-layer:"buildings",minzoom:13,filter:[">",["to-number",["get","height"],0],0],paint:{"fill-extrusion-color":["interpolate",["linear"],["to-number",["get","height"],0],0,"#d8e4e8",18,"#9db6bf",60,"#647f8d",150,"#405967"],"fill-extrusion-height":["to-number",["get","height"],0],"fill-extrusion-base":["to-number",["coalesce",["get","min_height"],0]],"fill-extrusion-opacity":.94}},before);
+  (style.layers||[]).filter(l=>l["source-layer"]==="building").forEach(l=>{if(l.type==="fill-extrusion"){baseBuildingLayers.push(l.id);map.setLayoutProperty(l.id,"visibility","visible")}});
+  map.addSource("terrain-dem",{type:"raster-dem",tiles:["https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png"],tileSize:256,encoding:"terrarium",maxzoom:15});
+  map.addLayer({id:"terrain-shade",type:"hillshade",source:"terrain-dem",layout:{visibility:"none"},paint:{"hillshade-exaggeration":.28}});
+  map.setTerrain({source:"terrain-dem",exaggeration:1.15});map.setFog({range:[1,10],color:"#d8e5eb","horizon-blend":.12});
+  loadData();
  });
- document.getElementById('tilt').onclick=()=>{threeD=!threeD;map.easeTo({pitch:threeD?58:0,bearing:threeD?-18:0,duration:900});document.getElementById('tilt').classList.toggle('active',threeD)};
- document.getElementById('terrain').onclick=()=>{terrainOn=!terrainOn;map.setLayoutProperty('terrain-shade','visibility',terrainOn?'visible':'none');map.setTerrain(terrainOn?{source:'terrain-dem',exaggeration:1.35}:null);document.getElementById('terrain').classList.toggle('active',terrainOn)};
- document.getElementById('buildings').onclick=()=>{buildingsOn=!buildingsOn;[buildingLayer,heightLayer].forEach(id=>{if(id&&map.getLayer(id))map.setLayoutProperty(id,'visibility',buildingsOn?'visible':'none')});document.getElementById('buildings').classList.toggle('active',buildingsOn)};
- document.getElementById('north').onclick=()=>map.easeTo({bearing:0,pitch:threeD?55:0,duration:700});
- document.getElementById('home').onclick=()=>map.flyTo({center,zoom:15.2,pitch:58,bearing:-18,duration:1300});
- const search=document.getElementById('search');
- search.addEventListener('keydown',async e=>{if(e.key!=='Enter'||!search.value.trim())return;const q=search.value.trim()+', Sawantwadi, Maharashtra, India';try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));const d=await r.json();if(d[0])map.flyTo({center:[+d[0].lon,+d[0].lat],zoom:17,pitch:58,bearing:-18,duration:1300});else search.placeholder='No result — try another name'}catch(_){search.placeholder='Search unavailable right now'}});
- map.on('error',e=>console.warn('Map resource:',e.error?.message||e));
+ $("tilt").onclick=()=>{threeD=!threeD;map.easeTo({pitch:threeD?58:0,bearing:threeD?-18:0,duration:750});$("tilt").classList.toggle("active",threeD);$("viewMode").textContent=threeD?"3D":"2D"};
+ $("terrain").onclick=()=>{terrainOn=!terrainOn;if(map.getLayer("terrain-shade"))map.setLayoutProperty("terrain-shade","visibility",terrainOn?"visible":"none");map.setTerrain(terrainOn?{source:"terrain-dem",exaggeration:1.35}:null);$("terrain").classList.toggle("active",terrainOn)};
+ $("buildings").onclick=()=>{buildingsOn=!buildingsOn;[heightLayer,...baseBuildingLayers].forEach(id=>{if(id&&map.getLayer(id))map.setLayoutProperty(id,"visibility",buildingsOn?"visible":"none")});$("buildings").classList.toggle("active",buildingsOn)};
+ $("north").onclick=()=>map.easeTo({bearing:0,pitch:threeD?55:0,duration:650});
+ $("home").onclick=()=>map.flyTo({center,zoom:15.2,pitch:58,bearing:-18,duration:1000});
+ $("refresh").onclick=loadData;$("clearSearch").onclick=()=>{$("search").value="";$("search").focus()};
+ $("search").addEventListener("keydown",async e=>{if(e.key!=="Enter"||!e.currentTarget.value.trim())return;const q=e.currentTarget.value.trim()+", Sawantwadi, Maharashtra, India";try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q));const d=await r.json();if(d[0])map.flyTo({center:[+d[0].lon,+d[0].lat],zoom:17,pitch:58,bearing:-18,duration:1100});else e.currentTarget.placeholder="No result — try another name"}catch(_){e.currentTarget.placeholder="Search temporarily unavailable"}});
+ map.on("error",e=>console.warn("Map resource:",e.error?.message||e));
 })();
 </script>
 </body></html>
