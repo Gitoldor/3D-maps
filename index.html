@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>3D Maps — Sawantwadi</title>
+<link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--panel:rgba(15,20,25,.82);--line:rgba(255,255,255,.12);--muted:#9ba8b5}
+*{box-sizing:border-box}html,body,#map{width:100%;height:100%;margin:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:#101820;color:#f5f7fa;overflow:hidden}
+#map{position:absolute;inset:0}.top{position:absolute;z-index:2;top:16px;left:16px;right:16px;display:flex;align-items:center;gap:12px;pointer-events:none}.brand,.search,.controls,.credit{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 8px 30px #0003}.brand{padding:11px 15px;border-radius:16px;font-weight:750;letter-spacing:-.4px;white-space:nowrap}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:500;letter-spacing:1.4px;margin-top:2px}.search{pointer-events:auto;flex:1;max-width:430px;display:flex;align-items:center;padding:0 14px;border-radius:15px;height:46px}.search input{width:100%;background:none;border:0;outline:0;color:white;font:inherit;font-size:14px}.search input::placeholder{color:#9ba8b5}.controls{position:absolute;z-index:2;right:16px;top:82px;display:grid;gap:8px;padding:8px;border-radius:16px}.controls button,.locate{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:#202a33;color:white;font-size:18px;cursor:pointer}.controls button:active,.locate:active{transform:scale(.95)}.controls button.active{background:#d7e9e7;color:#102326}.locate{position:absolute;z-index:2;right:16px;bottom:30px;width:auto;padding:0 14px;font-size:13px;background:var(--panel);backdrop-filter:blur(18px)}.hint{position:absolute;z-index:2;left:16px;bottom:28px;max-width:min(330px,calc(100% - 90px));padding:12px 14px;border:1px solid var(--line);border-radius:15px;background:var(--panel);backdrop-filter:blur(18px);font-size:12px;color:#dce4e9;line-height:1.5}.hint b{color:#fff}.credit{position:absolute;z-index:2;right:16px;bottom:82px;padding:7px 10px;border-radius:10px;font-size:10px;color:var(--muted)}.maplibregl-ctrl-group{background:#18232c!important;border:1px solid var(--line)!important}.maplibregl-ctrl-group button{filter:invert(1)}.maplibregl-ctrl-attrib{background:#101820bb!important;color:#c8d0d7!important}.maplibregl-ctrl-attrib a{color:#c8d0d7!important}
+@media(max-width:600px){.top{top:12px;left:12px;right:12px;gap:8px}.brand{padding:10px 12px;font-size:14px}.brand small{font-size:9px}.search{height:42px}.controls{right:12px;top:68px}.locate{right:12px;bottom:22px}.hint{left:12px;bottom:22px;font-size:11px}.credit{right:12px;bottom:72px}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="top"><div class="brand">3D MAPS<small>SAWANTWADI · OPEN MAP</small></div><label class="search"><span style="margin-right:9px">⌕</span><input id="search" placeholder="Search a place or landmark" autocomplete="off"></label></div>
+<div class="controls">
+<button id="tilt" title="Toggle 3D view" class="active">3D</button>
+<button id="terrain" title="Toggle terrain">⌁</button>
+<button id="buildings" title="Toggle 3D buildings" class="active">▥</button>
+<button id="north" title="Reset north">N</button>
+</div>
+<button class="locate" id="home">◎ &nbsp; Sawantwadi</button>
+<div class="hint"><b>Explore in 3D</b><br>Drag to move · Scroll to zoom · Right-drag to tilt and rotate</div>
+<div class="credit">© OpenStreetMap contributors · OpenFreeMap</div>
+<script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+<script>
+(() => {
+ const center=[73.7497,15.9044];
+ const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center,zoom:15.2,pitch:58,bearing:-18,antialias:true,attributionControl:true});
+ map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-left');
+ map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
+ let buildingLayer=null,terrainOn=false,buildingsOn=true,threeD=true;
+ map.on('load',()=>{
+   const style=map.getStyle();
+   const before=(style.layers||[]).find(l=>l.type==='symbol')?.id;
+   const candidates=(style.layers||[]).filter(l=>l['source-layer']==='building');
+   if(candidates.length){
+     buildingLayer=candidates[0].id;
+     candidates.forEach(l=>{if(l.type==='fill-extrusion')map.setLayoutProperty(l.id,'visibility','visible')});
+   } else if(map.getSource('openmaptiles')){
+     buildingLayer='sho1re1-3d-buildings';
+     map.addLayer({id:buildingLayer,type:'fill-extrusion',source:'openmaptiles','source-layer':'building',minzoom:13,
+       filter:['!=',['get','hide_3d'],'true'],
+       paint:{'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],5],0,'#c8d4d8',40,'#829da6',120,'#526b78'],
+       'fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],5],
+       'fill-extrusion-base':['coalesce',['get','render_min_height'],['get','min_height'],0],
+       'fill-extrusion-opacity':.88}},before);
+   }
+   map.addSource('terrain-dem',{type:'raster-dem',tiles:['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],tileSize:256,encoding:'terrarium',maxzoom:15});
+   map.addLayer({id:'terrain-shade',type:'hillshade',source:'terrain-dem',layout:{visibility:'none'},paint:{'hillshade-exaggeration':.28}});
+   map.setTerrain({source:'terrain-dem',exaggeration:1.15});
+   map.setFog({range:[1,10],color:'#d8e5eb','高-color':'#d8e5eb','horizon-blend':.12});
+   document.getElementById('terrain').classList.remove('active');
+ });
+ document.getElementById('tilt').onclick=()=>{threeD=!threeD;map.easeTo({pitch:threeD?58:0,bearing:threeD?-18:0,duration:900});document.getElementById('tilt').classList.toggle('active',threeD)};
+ document.getElementById('terrain').onclick=()=>{terrainOn=!terrainOn;map.setLayoutProperty('terrain-shade','visibility',terrainOn?'visible':'none');map.setTerrain(terrainOn?{source:'terrain-dem',exaggeration:1.35}:null);document.getElementById('terrain').classList.toggle('active',terrainOn)};
+ document.getElementById('buildings').onclick=()=>{buildingsOn=!buildingsOn;if(buildingLayer&&map.getLayer(buildingLayer))map.setLayoutProperty(buildingLayer,'visibility',buildingsOn?'visible':'none');document.getElementById('buildings').classList.toggle('active',buildingsOn)};
+ document.getElementById('north').onclick=()=>map.easeTo({bearing:0,pitch:threeD?55:0,duration:700});
+ document.getElementById('home').onclick=()=>map.flyTo({center,zoom:15.2,pitch:58,bearing:-18,duration:1300});
+ const search=document.getElementById('search');
+ search.addEventListener('keydown',async e=>{if(e.key!=='Enter'||!search.value.trim())return;const q=search.value.trim()+', Sawantwadi, Maharashtra, India';try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));const d=await r.json();if(d[0])map.flyTo({center:[+d[0].lon,+d[0].lat],zoom:17,pitch:58,bearing:-18,duration:1300});else search.placeholder='No result — try another name'}catch(_){search.placeholder='Search unavailable right now'}});
+ map.on('error',e=>console.warn('Map resource:',e.error?.message||e));
+})();
+</script>
+</body></html>
