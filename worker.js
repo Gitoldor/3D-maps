@@ -9,7 +9,7 @@ const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers
 export default {
  async fetch(request,env){
   const origin=request.headers.get("Origin")||"";
-  const allowed=origin==="https://gitoldor.github.io"||/^https?:\\/\\/(localhost|127\\.0\\.0\\.1)(:\\d+)?$/.test(origin);
+  const allowed=origin==="https://gitoldor.github.io"||origin.startsWith("http://localhost:")||origin.startsWith("http://127.0.0.1:")||origin==="http://localhost"||origin==="http://127.0.0.1";
   const headers={...cors,"Access-Control-Allow-Origin":allowed?origin:"https://gitoldor.github.io"};
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers});
   if(request.method!=="GET")return reply({error:"Method not allowed"},405);
