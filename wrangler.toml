@@ -1,0 +1,14 @@
+name = "sho1re1-map-api"
+main = "worker.js"
+compatibility_date = "2026-11-21"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sho1re1"
+database_id = "64640c85-2e90-45de-acaa-ff6a4f981cfa"
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
