@@ -22,18 +22,31 @@
 </div>
 <button class="locate" id="home">◎ &nbsp; Sawantwadi</button>
 <div class="hint"><b>Explore in 3D</b><br>Drag to move · Scroll to zoom · Right-drag to tilt and rotate</div>
-<div class="credit">© OpenStreetMap contributors · OpenFreeMap</div>
+<div class="credit">© OpenStreetMap · Overture / Milleleaf (ODbL) · OpenFreeMap</div>
 <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
 <script>
 (() => {
  const center=[73.7497,15.9044];
+ const pmtilesProtocol=new pmtiles.Protocol();
+ maplibregl.addProtocol('pmtiles',pmtilesProtocol.tile);
  const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center,zoom:15.2,pitch:58,bearing:-18,antialias:true,attributionControl:true});
  map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-left');
  map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');
- let buildingLayer=null,terrainOn=false,buildingsOn=true,threeD=true;
+ let buildingLayer=null,heightLayer=null,terrainOn=false,buildingsOn=true,threeD=true;
  map.on('load',()=>{
    const style=map.getStyle();
    const before=(style.layers||[]).find(l=>l.type==='symbol')?.id;
+   // Open, height-attributed building tiles for Asia (ODbL via Overture/OSM).
+   // PMTiles uses HTTP range requests, so the browser fetches only visible map tiles.
+   map.addSource('global-height-buildings',{type:'vector',url:'pmtiles://https://huggingface.co/buckets/alreadyopen/world-buildings/resolve/v/2026-09-23.1/r013.pmtiles',attribution:'Building heights: Overture Maps / Milleleaf · ODbL-1.0'});
+   heightLayer='sho1re1-global-height-buildings';
+   map.addLayer({id:heightLayer,type:'fill-extrusion',source:'global-height-buildings','source-layer':'buildings',minzoom:13,
+     filter:['>', ['to-number',['get','height'],0],0],
+     paint:{'fill-extrusion-color':['interpolate',['linear'],['to-number',['get','height'],0],0,'#d8e4e8',18,'#9db6bf',60,'#647f8d',150,'#405967'],
+       'fill-extrusion-height':['to-number',['get','height'],0],
+       'fill-extrusion-base':['to-number',['coalesce',['get','min_height'],0]],
+       'fill-extrusion-opacity':.94}},before);
    const candidates=(style.layers||[]).filter(l=>l['source-layer']==='building');
    if(candidates.length){
      buildingLayer=candidates[0].id;
@@ -55,7 +68,7 @@
  });
  document.getElementById('tilt').onclick=()=>{threeD=!threeD;map.easeTo({pitch:threeD?58:0,bearing:threeD?-18:0,duration:900});document.getElementById('tilt').classList.toggle('active',threeD)};
  document.getElementById('terrain').onclick=()=>{terrainOn=!terrainOn;map.setLayoutProperty('terrain-shade','visibility',terrainOn?'visible':'none');map.setTerrain(terrainOn?{source:'terrain-dem',exaggeration:1.35}:null);document.getElementById('terrain').classList.toggle('active',terrainOn)};
- document.getElementById('buildings').onclick=()=>{buildingsOn=!buildingsOn;if(buildingLayer&&map.getLayer(buildingLayer))map.setLayoutProperty(buildingLayer,'visibility',buildingsOn?'visible':'none');document.getElementById('buildings').classList.toggle('active',buildingsOn)};
+ document.getElementById('buildings').onclick=()=>{buildingsOn=!buildingsOn;[buildingLayer,heightLayer].forEach(id=>{if(id&&map.getLayer(id))map.setLayoutProperty(id,'visibility',buildingsOn?'visible':'none')});document.getElementById('buildings').classList.toggle('active',buildingsOn)};
  document.getElementById('north').onclick=()=>map.easeTo({bearing:0,pitch:threeD?55:0,duration:700});
  document.getElementById('home').onclick=()=>map.flyTo({center,zoom:15.2,pitch:58,bearing:-18,duration:1300});
  const search=document.getElementById('search');
