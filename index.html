@@ -37,6 +37,31 @@
 </section>
 <button class="action" id="home">◎ &nbsp; Sawantwadi</button>
 <div class="credit glass">© OpenStreetMap · OpenFreeMap · Overture / Milleleaf</div>
+<script>
+/* Independent D1 bootstrap: this runs even if MapLibre/PMTiles fail. */
+(async function(){
+ const status=document.getElementById("dbStatus"),dot=document.getElementById("dbDot"),list=document.getElementById("places"),count=document.getElementById("placeCount"),cats=document.getElementById("categoryCount");
+ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ status.textContent="Connecting database";
+ try{
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),12000);
+  const [a,b]=await Promise.all([
+   fetch("https://sho1re1-map-api.sho1re1.workers.dev/api/posts",{cache:"no-store",signal:ctl.signal}),
+   fetch("https://sho1re1-map-api.sho1re1.workers.dev/api/categories",{cache:"no-store",signal:ctl.signal})
+  ]);
+  clearTimeout(timer);
+  if(!a.ok||!b.ok)throw new Error("API HTTP "+a.status+" / "+b.status);
+  const p=await a.json(),k=await b.json(),items=p.posts||[];
+  count.textContent=items.length;cats.textContent=(k.categories||[]).length;
+  list.innerHTML=items.length?items.map((x,i)=>'<div class="place"><span class="pin">'+(i+1)+'</span><span><strong>'+esc(x.title)+'</strong><small>'+esc(x.category)+' · '+esc(x.area||x.location_name)+(x.is_demo?' · DEMO':'')+'</small></span></div>').join(""):'<div class="empty">No published places in D1 yet.</div>';
+  dot.classList.add("ok");status.textContent="D1 connected";
+ }catch(e){
+  dot.classList.remove("ok");status.textContent="Database error";
+  list.innerHTML='<div class="empty">D1 request failed: '+esc(e.name==="AbortError"?"Request timed out":e.message)+'<br>Tap ↻ after checking your connection.</div>';
+  console.error("Independent D1 load failed",e);
+ }
+})();
+</script>
 <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
 <script>
