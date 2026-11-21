@@ -1,24 +1,30 @@
-# Sho1re1 3D Map
+# FORME — Fashion storefront
 
-A mobile-first MapLibre 3D map centred on Sawantwadi, backed by Cloudflare D1 through a Cloudflare Worker API.
+A responsive fashion shop hosted on GitHub Pages, backed by Cloudflare Worker + D1.
 
-## Live app
-https://gitoldor.github.io/3D-maps/
+Live: https://gitoldor.github.io/3D-maps/
 
-## Architecture
-- GitHub Pages serves `index.html`.
-- MapLibre GL JS + OpenFreeMap provide the interactive basemap.
-- PMTiles global building-height layer and Terrarium DEM provide 3D buildings/terrain.
-- Cloudflare Worker `sho1re1-map-api` exposes read-only `/api/posts`, `/api/categories`, and `/api/health`.
-- Worker D1 binding `DB` points to the `sho1re1` database.
+## Stack
+- `index.html`: storefront, product filters, product details, local cart and checkout form.
+- `worker.js`: JSON API for catalogue and pending order requests.
+- `schema.sql`: D1 schema and starter product catalogue.
+- Cloudflare D1 database: `sho1re1`
+- Worker: `sho1re1-map-api`
+- D1 binding: `DB`
 
-## Deploy API changes
-Upload `worker.js` as a module Worker named `sho1re1-map-api`, with D1 binding:
-- Variable name: `DB`
-- Database: `sho1re1`
-- Database ID: `64640c85-2e90-45de-acaa-ff6a4f981cfa`
+## API routes
+- `GET /api/health`
+- `GET /api/categories`
+- `GET /api/products` (optional `category` and `q` query parameters)
+- `POST /api/orders`
 
-Allowed browser origin: `https://gitoldor.github.io`.
+## Tables
+`categories`, `products`, `customers`, `orders`, `order_items`.
 
-## Notes
-Current records are clearly marked mock/demo data. The public API only returns published listing fields; it does not expose payment rows or contact details.
+Prices are stored in whole INR rupees. Product sizes and colours are JSON arrays. Images currently use externally hosted Unsplash URLs; replace them with real product photography before launch.
+
+## Orders
+Checkout creates a pending order request and reserves stock. It does not take online payments. The store must contact the customer to confirm delivery and payment.
+
+## Reset warning
+Re-running `schema.sql` drops and recreates the store tables, deleting existing products, customers and orders. The previous map project schema and demo records were replaced during this rebuild.
